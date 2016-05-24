@@ -13,10 +13,10 @@ sys.setdefaultencoding('utf-8')
 class DbHelper():
     def __init__(self):
         self.__wbsDbConfig = {
-            'user': 'wbsuser',
-            'password': 'wbsuser2016',
+            'user': 'iwbsuser',
+            'password': 'iwbsuser2016',
             'host': '11.4.3.229',
-            'database': 'wbs',
+            'database': 'iwbs',
             'raise_on_warnings': True
         }
 
@@ -49,38 +49,33 @@ class DbHelper():
         conn.close()
 
 class queries():
-    def __init__(self, const):
+    def __init__(self, db, const):
+        self.db = db
         self.utility = Utility()
         self.CONST = const
 
-    def getSetup(self, id, seq):
+    def getSetup(self, id, seq, dvcd):
 
         # 변수별 컬럼 값
         ID_NM = 0
         SEQ = 1
-        START_DT = 2
-        END_DT = 3
-        LEARN_DT = 4
-        NTS = 5
-        FILTER = 6
-        PCA = 7
-        LAG = 8
-        SCALING = 9
-        DV = 10
+        DV = 2
+        START_DT = 3
+        END_DT = 4
+        LEARN_DT = 5
+        NTS = 6
+        FILTER = 7
+        PCA = 8
+        LAG = 9
+        SCALING = 10
         LAG_CUT = 11
         SHIFT = 12
+        DIR = 13
+        THRESHOLD = 14
 
-        # DV
-        DIR = 3
-        THRESHOLD = 2
-
-        db = DbHelper()
-
-        dataTuples = db.exeData(self.CONST.QR_SELECT_ID_SETUP % (id, seq))
+        dataTuples = self.db.exeData(
+            self.CONST.QR_SELECT_DV_SETUP % (dvcd, id, seq))
         dbData = dataTuples[0]
-
-        dataTuples = db.exeData(self.CONST.QR_SELECT_DV_MAST % dbData[DV])
-        dbDataDV = dataTuples[0]
 
         result = {}
         result['id_nm'] = dbData[ID_NM]
@@ -95,9 +90,9 @@ class queries():
         result['scaling'] = dbData[SCALING]
         result['hp_filter'] = dbData[FILTER]
         result['dv'] = dbData[DV]
-        result['dv_dir'] = dbDataDV[DIR]
+        result['dv_dir'] = dbData[DIR]
         result['thres_cut'] = 0.2  # .2 고정
-        result['dv_thres'] = dbDataDV[THRESHOLD]
+        result['dv_thres'] = dbData[THRESHOLD]
         result['shift'] = dbData[SHIFT]
         self.params = result
         return result
@@ -110,9 +105,13 @@ class queries():
         result.extend(dbData)
         return result
 
-    def getItems(self, id, seq):
+    def getITemsFromDV(self, dv):
+        items = []
+        return items
+
+    def getItems(self, id, seq, dvcd):
         db = DbHelper()
-        items = db.exeData(self.CONST.QR_SELECT_ITEM % (id, seq))
+        items = db.exeData(self.CONST.QR_SELECT_ITEM % (dvcd))
 
         itemCdSelect = []
         itemNmSelect = []
@@ -126,10 +125,18 @@ class queries():
         dataSelect.append("select concat(a.trd_dt,'01'), ")
 
         for item in items:
-            itemCdSelect.append("MAX(iF(a.item_cd = '" + item[0] + "', a.item_cd, null)) 'I'")
-            itemNmSelect.append("MAX(iF(a.item_cd = '" + item[0] + "', concat(a.item_nm, '_', a.unit), null)) ")
-            pathSelect.append("MAX(iF(a.item_cd = '" + item[0] + "', a.path, null)) ")
-            dataSelect.append("MAX(iF(a.item_cd = '" + item[0] + "', a.amount, null)) ")
+            itemCdSelect.append(
+                "MAX(iF(a.item_cd = '" + item[0]
+                + "', a.item_cd, null)) 'I'")
+            itemNmSelect.append(
+                "MAX(iF(a.item_cd = '" + item[0]
+                + "', concat(a.item_nm, '_', a.unit), null)) ")
+            pathSelect.append(
+                "MAX(iF(a.item_cd = '" + item[0]
+                + "', a.path, null)) ")
+            dataSelect.append(
+                "MAX(iF(a.item_cd = '" + item[0]
+                + "', a.amount, null)) ")
             if cnt < len(items) - 1:
                 itemCdSelect.append(', ')
                 itemNmSelect.append(', ')
@@ -137,10 +144,19 @@ class queries():
                 dataSelect.append(', ')
             cnt = cnt + 1
 
-        itemCdSelect.append("from wbs_ind_var_mast a, wbs_id_item b where b.id_nm = '" + id + "' and b.cre_seq = '" + seq + "' and a.item_cd = b.item_cd")
-        itemNmSelect.append("from wbs_ind_var_mast a, wbs_id_item b where b.id_nm = '" + id + "' and b.cre_seq = '" + seq + "' and a.item_cd = b.item_cd")
-        pathSelect.append("from wbs_ind_var_mast a, wbs_id_item b where b.id_nm = '" + id + "' and b.cre_seq = '" + seq + "' and a.item_cd = b.item_cd")
-        dataSelect.append("from wbs_ind_var_detail a, wbs_id_item b where b.id_nm = '" + id + "' and b.cre_seq = '" + seq + "' and a.item_cd = b.item_cd group by a.trd_dt")
+        itemCdSelect.append(
+            "from iwbs_ind_var_mast a, iwbs_indust_mast b "
+            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+        itemNmSelect.append(
+            "from iwbs_ind_var_mast a, iwbs_indust_mast b "
+            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+        pathSelect.append(
+            "from iwbs_ind_var_mast a, iwbs_indust_mast b "
+            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+        dataSelect.append(
+            "from iwbs_ind_var_data a, iwbs_indust_mast b "
+            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd "
+            "group by a.trd_dt")
 
         allSelect = []
         allSelect.append(''.join(itemCdSelect))
@@ -190,7 +206,7 @@ class queries():
             series.data_cleansing(self.params['t0'], self.params['t1'])
             series.set_freq()
 
-            if series.date[0] <= self.params['t0'] and series.date[-1] >= self.params['t1']:
+            if len(series.date) > 0 and series.date[0] <= self.params['t0'] and series.date[-1] >= self.params['t1']:
                 series_result.append(series)
 
         return series_result
@@ -211,14 +227,14 @@ class OutputToDB:
             btime = datetime.datetime.now()
             self.insert_factor(data)
             print 'insert_factor Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - btime))
-
-            ctime = datetime.datetime.now()
-            self.insert_factor_weight(data)
-            print 'insert_factor_weight Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - ctime))
-
-            dtime = datetime.datetime.now()
-            self.insert_warning_board_idx(data)
-            print 'insert_warning_board_idx Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - dtime))
+            #
+            # ctime = datetime.datetime.now()
+            # self.insert_factor_weight(data)
+            # print 'insert_factor_weight Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - ctime))
+            #
+            # dtime = datetime.datetime.now()
+            # self.insert_warning_board_idx(data)
+            # print 'insert_warning_board_idx Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - dtime))
         except Exception as inst:
             print type(inst)
             print inst.args
@@ -238,7 +254,9 @@ class OutputToDB:
                         iv_sh['YYYYMM'][j] + '01', '%Y%m%d'
                     ).date() == self.params['t1']:
                         elem = (str(self.params['id_nm']),
+                                str(self.params['seq']),
                                 str(iv_sh['YYYYMM'][j]),
+                                str(self.params['dv']),
                                 str(col),
                                 iv_sh[col][j],
                                 int(iv_sh_digit[col][j]),
@@ -253,19 +271,21 @@ class OutputToDB:
                                 )
                     else:
                         elem = (str(self.params['id_nm']),
-                               str(iv_sh['YYYYMM'][j]),
-                               str(col),
-                               iv_sh[col][j],
-                               int(iv_sh_digit[col][j]),
-                               None,
-                               None,
-                               None,
-                               None,
-                               None,
-                               None,
-                               None,
-                               None
-                               )
+                                str(self.params['seq']),
+                                str(iv_sh['YYYYMM'][j]),
+                                str(self.params['dv']),
+                                str(col),
+                                iv_sh[col][j],
+                                int(iv_sh_digit[col][j]),
+                                None,
+                                None,
+                                None,
+                                None,
+                                None,
+                                None,
+                                None,
+                                None
+                                )
 
                     insertData.append(elem)
 
@@ -273,9 +293,9 @@ class OutputToDB:
         cur = conn.cursor()
 
         try:
-            cur.execute(self.CONST.QR_DELETE_IND_VAR_DETAIL_SET,
-                        self.params['id_nm'])
-            cur.executemany(self.CONST.QR_INSERT_IND_VAR_DETAIL_SET, insertData)
+            cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
+                        (self.params['id_nm'], self.params['seq']))
+            cur.executemany(self.CONST.QR_INSERT_IND_VAR_INFO, insertData)
             conn.commit()
         except Exception as inst:
             print type(inst)
@@ -302,7 +322,7 @@ class OutputToDB:
                 code_ordered.append(c)
         code_ordered.append('DV')
 
-        id_info = (str(self.params['seq']), str(self.params['id_nm']))
+        id_info = (str(self.params['id_nm']), str(self.params['seq']))
 
         for col in code_ordered:
             if col != 'YYYYMM' and col != 'DATE' and col != 'DV':
@@ -326,8 +346,8 @@ class OutputToDB:
                                 iv_info[col]['d'],
                                 crisis_gb,
                                 iv_info[col]['dir'],
-                                None,   #iv_info[col]['adf_test'],
-                                iv_info[col]['thres']
+                                iv_info[col]['thres'],
+                                self.params['dv']
                                )
                     else:
                         elem = (str(iv_sh['YYYYMM'][j]),
@@ -341,12 +361,11 @@ class OutputToDB:
                                 None,
                                 crisis_gb,
                                 iv_info[col]['dir'],
-                                None,
-                                iv_info[col]['thres']
+                                iv_info[col]['thres'],
+                                self.params['dv']
                                )
 
-                    if not self.CONST.isFixed():
-                        elem = id_info + elem
+                    elem = id_info + elem
 
                     insertData.append(elem)
 
@@ -354,14 +373,10 @@ class OutputToDB:
         cur = conn.cursor()
 
         try:
-            if self.CONST.isFixed():
-                cur.execute(
-                    self.CONST.QR_DELETE_FACT_INFO_SET)
-            else:
-                cur.execute(
-                    self.CONST.QR_DELETE_FACT_INFO_SET,
-                    (self.params['id_nm'], self.params['seq']))
-            cur.executemany(self.CONST.QR_INSERT_FACT_INFO_SET, insertData)
+            cur.execute(
+                self.CONST.QR_DELETE_FACT_INFO,
+                (self.params['id_nm'], self.params['seq']))
+            cur.executemany(self.CONST.QR_INSERT_FACT_INFO, insertData)
             conn.commit()
         except Exception as inst:
             print type(inst)

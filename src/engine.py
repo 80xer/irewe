@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import datetime
 from src import read
 from src.utility import DateUtility
 from src.preprocessing import PreProcessing
@@ -12,21 +13,27 @@ sys.setdefaultencoding('utf-8')
 
 
 class Engine:
-    def __init__(self):
+    def __init__(self, qr):
+        self.qr = qr
         return
 
-    def run(self, params, options, qr):
+    def run(self, params, options):
         t0 = params['t0']   # 초기   날짜 세팅
         t1 = params['t1']   # 마지막 날짜 세팅
 
         iv_total = []
 
         # 디비에서 독립변수 받기
-        items = qr.getItems(options.userId, options.seq)   # 유저 셋팅 아이템 받기
+
+        atime = datetime.datetime.now()
+        items = self.qr.getItems(options.userId, options.seq, options.dv)   #
+        print 'getItems Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - atime))
+        # 유저 셋팅
+        #  아이템 받기
         iv_total.extend(items)
 
         # 디비에서 종속변수 받기
-        dv_1 = qr.getDv(params['dv'])
+        dv_1 = self.qr.getDv(params['dv'])
 
         # debug 용 데이터 축소
         if options.debug:

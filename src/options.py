@@ -44,7 +44,7 @@ def set_options():
     parser.add_option(
         '-v', '--dv',
         dest='dv',
-        default='dv',
+        default='FGSC.15.10.10',
         help='choice dependent variable'
     )
 

@@ -29,8 +29,9 @@ print '\n'
 
 opts = options.get_options()
 const = const.Const(opts.fix)
-qr = db.queries(const)
-params = qr.getSetup(opts.userId, opts.seq)
+dbs = db.DbHelper()
+qr = db.queries(dbs, const)
+params = qr.getSetup(opts.userId, opts.seq, opts.dv)
 
 # print parameters
 print '{:*^60}'.format('')
@@ -42,8 +43,8 @@ print '{:*^60}'.format('')
 engine_time = datetime.datetime.now()
 print '{:*^60}'.format('')
 print 'Engine Start'
-engine = engine.Engine()
-result = engine.run(params, opts, qr)
+engine = engine.Engine(qr)
+result = engine.run(params, opts)
 
 # Engine running time 출력
 print 'Engine Time difference : {difftime}'\

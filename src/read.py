@@ -84,14 +84,14 @@ class Series():
         new_value = []
         origin_date = []
         origin_value = []
-
+        idx = 0
         for i in range(len(self.value)):
             if self.value[i] != '' and self.value[i] != None:
                 idx = self.date[i]  #해수부 시계열 조정 요청에 따라 마지막 데이터 수취 일자 저장.
                 origin_value.append(self.value[i])
                 origin_date.append(self.date[i])
 
-        if self.params['shift'] == 'Y' and t1 > idx:
+        if self.params['shift'] == 'Y' and idx != 0 and t1 > idx:
 
             # 해수부 시계열 조정 요청
             shift = 4
