@@ -91,7 +91,15 @@ class Utility:
 
         keyFormat = '{:' + dot + kp + '30}'
         valueFormat = '{:' + dot + vp + '29}'
+
         print '%s %s' %(keyFormat.format(key),valueFormat.format(str(value)))
+
+        if type(value) is datetime.timedelta:
+            secs = value.seconds
+            mins = secs / 60
+            secs = secs % 60
+            value = '0:' + ('%02d' % (mins,)) + ':' + ('%02d' % (secs,))
+            print '%s %s' %(keyFormat.format(key),valueFormat.format(str(value)))
 
 
     def printLine(self):

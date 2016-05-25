@@ -28,8 +28,6 @@ class Engine:
 
         atime = datetime.datetime.now()
         items = self.qr.getItems(options.userId, options.seq, options.dv)
-        util.printKeyValue(
-            '    GetItems Time diff', datetime.datetime.now() - atime)
         # 유저 셋팅
         #  아이템 받기
         iv_total.extend(items)
@@ -42,7 +40,10 @@ class Engine:
             iv_total = iv_total[:12]
             print "length of iv_total is %s" % len(iv_total)
 
-        # time check
+        util.printKeyValue(
+            '    GetItems Time diff',
+            datetime.datetime.now() - atime)
+
         iv_code_time = datetime.datetime.now()
         # 독립변수별 코드 <--> 이름 Dictionary 세팅
         iv_code = {}
@@ -65,9 +66,10 @@ class Engine:
             iv_info_dict[iv.code]['group'] = iv.group
 
         util.printKeyValue(
-            '    iv_code_time Time diff',
+            '    interpolated Time diff',
             datetime.datetime.now() - iv_code_time)
 
+        dv_1_out_time = datetime.datetime.now()
         # out of sample months
         month_list_str_out, month_list_months_out = du.get_montly_span(
             t0,
@@ -95,27 +97,41 @@ class Engine:
             iv_total_out)
         # --------------------------------------------------
 
+        util.printKeyValue(
+            '    df_iv_out Time diff', datetime.datetime.now() - dv_1_out_time)
+
+        preProcess_time = datetime.datetime.now()
         # 전처리 작업 구동
         pp = PreProcessing()
+        util.printKeyValue(
+            '    PreProcessing Time diff',
+            datetime.datetime.now() - preProcess_time)
 
+        df_time = datetime.datetime.now()
         # ADF 테스트 후 차분
         df_iv, df_iv_out = pp.get_adf_test_after_df(df_iv,
                                                     df_iv_out,
                                                     iv_info_dict)
-        # 시계열 길이 하나 줄어들음.
+        util.printKeyValue(
+            '    adf_test Time diff',
+            datetime.datetime.now() - df_time)
 
-        # out of sample months ------------------------------------------------
-        # df_iv_out = pp.get_adf_test_after_df(df_iv_out, iv_info_dict)
-        #  시계열 길이 하나 줄어들음.
-        # ---------------------------------------------------------------------
-
+        filter_time = datetime.datetime.now()
         # Hp Filter
         df_iv = pp.get_hp_filter(df_iv, params['hp_filter'])
+        util.printKeyValue(
+            '    df_iv_filter Time diff',
+            datetime.datetime.now() - filter_time)
 
+        df_iv_time = datetime.datetime.now()
         # out of sample months ------------------------------------------------
         df_iv_out = pp.get_hp_filter(df_iv_out, params['hp_filter'])
+        util.printKeyValue(
+            '    df_iv_out_filter Time diff',
+            datetime.datetime.now() - df_iv_time)
         # ---------------------------------------------------------------------
 
+        df_dv_time = datetime.datetime.now()
         # 종속변수
         df_dv = read.convert_series_list_to_dataframe(dv_1)
         df_dv_out = read.convert_series_list_to_dataframe(dv_1_out)
@@ -131,7 +147,11 @@ class Engine:
 
         df_iv_sh['DV'] = df_dv[df_dv.columns[2]]
         df_iv_sh_out['DV'] = df_dv_out[df_dv_out.columns[2]]    # out of sample
+        util.printKeyValue(
+            '    df_dv_out Time diff',
+            datetime.datetime.now() - df_dv_time)
 
+        nts_time = datetime.datetime.now()
         # nts 계산
         nts_module = NtsCaldulator()
         dv_crisis_digit_list, dv_thres = \
@@ -141,18 +161,29 @@ class Engine:
         # iv_info_dict 에 nts 관련 정보 적재  (2016.03.10) nts 계산에서 \
         # 선행기간 내 위기식별 구간 제한 추가작업 lag_cut
         # nts_module.cal_nts_by_digit(df_iv_sh, dv_crisis_digit_list)
+        util.printKeyValue(
+            '    cal_nts_total Time diff',
+            datetime.datetime.now() - nts_time)
 
+        df_iv_sh_digit_time = datetime.datetime.now()
         # nts 에 따른 thres와 digit 저장
         df_iv_sh_digit = nts_module.get_iv_sh_digit(df_iv_sh, iv_info_dict,
                                                     params['dv_thres'],
                                                     params['dv_dir'])
+        util.printKeyValue(
+            '    get_iv_sh_digit Time diff',
+            datetime.datetime.now() - df_iv_sh_digit_time)
 
+        srt_time = datetime.datetime.now()
         srted = sorted(iv_info_dict.iteritems(),
                        key=self.get_value,
                        reverse=False)
         filtered = [s for s in srted if s[1]['nts'] < params['nts_thres']]
-        # filtered = srted[:149]
+        util.printKeyValue(
+            '    sorted Time diff',
+            datetime.datetime.now() - srt_time)
 
+        factor_time = datetime.datetime.now();
         code_list = []
         for f in filtered:
             code_list.append(f[0])
@@ -194,7 +225,11 @@ class Engine:
         for i in range(len(df_factor.columns.tolist())):
             factor_info_dict[df_factor.columns.tolist()[i]]['weight'] = \
                 factor_weight['fracs'][i]
+        util.printKeyValue(
+            '    factor Time diff',
+            datetime.datetime.now() - factor_time)
 
+        idx_time = datetime.datetime.now()
         # 위기지수 계산
         df_warning_idx = self.cal_warning_idx(factor_info_dict,
                                               df_factor_series)
@@ -214,7 +249,9 @@ class Engine:
         result['df_warning_idx_out'] = df_warning_idx_out
         result['dv_thres'] = dv_thres
         result['factor_weight'] = factor_weight
-
+        util.printKeyValue(
+            '    cal idx Time diff',
+            datetime.datetime.now() - idx_time)
         return result
 
     def get_value(self, item):
