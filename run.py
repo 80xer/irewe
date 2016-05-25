@@ -11,6 +11,7 @@ from src import const
 from src import db
 from src import engine
 from src.utility import DateUtility
+from src.utility import Utility
 from src.preprocessing import PreProcessing
 
 reload(sys)
@@ -32,39 +33,37 @@ const = const.Const(opts.fix)
 dbs = db.DbHelper()
 qr = db.queries(dbs, const)
 params = qr.getSetup(opts.userId, opts.seq, opts.dv)
+util = Utility()
 
 # print parameters
-print '{:*^60}'.format('')
+util.printLine()
 for x in params:
-    print "%s : %s" % ('{:>27}'.format(x), params[x])
-print '{:*^60}'.format('')
+    util.printKeyValue(x, params[x], open=False)
+util.printLine()
 
 # run engine
 engine_time = datetime.datetime.now()
-print '{:*^60}'.format('')
-print 'Engine Start'
+util.printLine()
+util.printKeyValue('Engine Start','')
 engine = engine.Engine(qr)
 result = engine.run(params, opts)
 
 # Engine running time 출력
-print 'Engine Time difference : {difftime}'\
-    .format(difftime=(datetime.datetime.now() - engine_time))
-print '{:*^60}'.format('')
+util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))
+util.printLine()
 
 # db output
 output_time = datetime.datetime.now()
-print '{:*^60}'.format('')
-print 'Output Start'
+util.printLine()
+util.printKeyValue('Output Start','')
 dbHelper = src.db.OutputToDB(params, const)
 dbHelper.insert_report(result)
 
 # Output running time 출력
-print 'Output Time difference : {difftime}'\
-    .format(difftime=(datetime.datetime.now() - output_time))
-print '{:*^60}'.format('')
+util.printKeyValue('Output Time diff', (datetime.datetime.now() - output_time))
+util.printLine()
 
 # running time 출력
-print '{:*^60}'.format('')
-print 'Total Time difference : {difftime}'\
-    .format(difftime=(datetime.datetime.now() - start_time))
-print '{:*^60}'.format('')
+util.printLine()
+util.printKeyValue('Total Time diff', (datetime.datetime.now() - start_time))
+util.printLine()

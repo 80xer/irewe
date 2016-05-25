@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import optparse
+from src.utility import Utility
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -71,14 +72,15 @@ def get_options():
     if options.fix:
         options.userId = 'system'
 
+    util = Utility()
     # print options
-    print '%s' %('{:*^60}'.format(''))
-    print '%s : %s' %('{:>27}'.format('debug'), options.debug)
-    print '%s : %s' %('{:>27}'.format('fix'), options.fix)
-    print '%s : %s' %('{:>27}'.format('userId'), options.userId)
-    print '%s : %s' %('{:>27}'.format('seq'), options.seq)
-    print '%s : %s' %('{:>27}'.format('dv'), options.dv)
-    print '%s : %s' %('{:>27}'.format('shift'), options.shift)
-    print '%s' %('{:*^60}'.format(''))
+    util.printLine()
+    util.printKeyValue('debug', options.debug, open=False)
+    util.printKeyValue('fix', options.fix, open=False)
+    util.printKeyValue('userId', options.userId, open=False)
+    util.printKeyValue('seq', options.seq, open=False)
+    util.printKeyValue('dv', options.dv, open=False)
+    util.printKeyValue('shift', options.shift, open=False)
+    util.printLine()
 
     return options

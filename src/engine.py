@@ -3,6 +3,7 @@ import sys
 import datetime
 from src import read
 from src.utility import DateUtility
+from src.utility import Utility
 from src.preprocessing import PreProcessing
 from src.nts import NtsCaldulator
 from src.pca import PcaCalculator
@@ -20,14 +21,15 @@ class Engine:
     def run(self, params, options):
         t0 = params['t0']   # 초기   날짜 세팅
         t1 = params['t1']   # 마지막 날짜 세팅
-
+        util = Utility()
         iv_total = []
 
         # 디비에서 독립변수 받기
 
         atime = datetime.datetime.now()
-        items = self.qr.getItems(options.userId, options.seq, options.dv)   #
-        print 'getItems Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - atime))
+        items = self.qr.getItems(options.userId, options.seq, options.dv)
+
+        util.printKeyValue('    GetItems Time diff', datetime.datetime.now() - atime)
         # 유저 셋팅
         #  아이템 받기
         iv_total.extend(items)

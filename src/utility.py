@@ -76,3 +76,23 @@ class Utility:
         str_code = pre_fix + str_code
         return str_code
 
+
+    def printKeyDotValue(self, key, value):
+        self.printKeyValue(key, value, '.')
+
+    def printKeyValue(self, key, value, dot=' ', open=True):
+        if open:
+            kp = '<'
+            vp = '>'
+
+        else:
+            kp = '>'
+            vp = '<'
+
+        keyFormat = '{:' + dot + kp + '30}'
+        valueFormat = '{:' + dot + vp + '29}'
+        print '%s %s' %(keyFormat.format(key),valueFormat.format(str(value)))
+
+
+    def printLine(self):
+        print '{:*^60}'.format('')

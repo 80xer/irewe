@@ -75,9 +75,36 @@ class Const():
 
         return query
 
+    @constant
+    def QR_DELETE_FACT_WT(self):  # 독립변수 비중 값들 삭제
+        query = """DELETE from iwbs_fact_wt where id_nm = %s and cre_seq = %s"""
 
+        return query
 
+    @constant
+    def QR_INSERT_FACT_WT(self):  # 독립변수 비중 값들 생성
 
+        query = """INSERT INTO iwbs_fact_wt (ID_NM, CRE_SEQ, TRD_DT,
+        FACT_NM, PARENT_ITEM_CD, ITEM_CD, ITEM_WT, DV_CD)
+        select %s, %s, %s, %s, parent_item_cd, %s, %s, %s
+        from iwbs_ind_var_mast where item_cd = %s"""
+
+        return query
+
+    @constant
+    def QR_DELETE_IDX(self):  # 위기지수 삭제
+        query = """DELETE from iwbs_idx_data where id_nm = %s and cre_seq = %s"""
+
+        return query
+
+    @constant
+    def QR_INSERT_IDX(self):  # 위기지수 생성
+
+        query = """INSERT INTO iwbs_idx_data
+            (ID_NM, CRE_SEQ, TRD_DT, DV_CD, AMOUNT)
+            VALUES(%s, %s, %s, %s, %s)"""
+
+        return query
 
 
 
@@ -93,73 +120,3 @@ class Const():
     @constant
     def QR_SELECT_DV_MAST(self):    # DV 정보 조회
         return "select * from wbs_dv_mast where item_cd = '%s';"
-
-    @constant
-    def QR_DELETE_IND_WT_SET(self):  # 독립변수 비중 값들 삭제
-        query = """DELETE from """ + self.TBL_IND_WT
-        if not self.isFixed():
-            query += """ where id_nm = %s and cre_seq = %s"""
-
-        return query
-
-    @constant
-    def QR_INSERT_IND_WT_SET(self):  # 독립변수 비중 값들 생성
-
-        query = """INSERT INTO """ + self.TBL_IND_WT
-
-        if self.isFixed():
-            query += """
-            (TRD_DT, FACT_NM, ITEM_CD, ITEM_WT)
-            VALUES(%s, %s, %s, %s)"""
-        else:
-            query += """
-            (CRE_SEQ, ID_NM, TRD_DT, FACT_NM, ITEM_CD, ITEM_WT)
-            VALUES(%s, %s, %s, %s, %s, %s)"""
-
-        return query
-
-    @constant
-    def QR_DELETE_IDX_SET(self):  # 위기지수 삭제
-        query = """DELETE from """ + self.TBL_IDX
-        if not self.isFixed():
-            query += """ where id_nm = %s and cre_seq = %s"""
-
-        return query
-
-    @constant
-    def QR_INSERT_IDX_SET(self):  # 위기지수 생성
-
-        query = """INSERT INTO """ + self.TBL_IDX
-
-        if self.isFixed():
-            query += """
-            (TRD_DT, ITEM_CD, AMOUNT)
-            VALUES(%s, %s, %s)"""
-        else:
-            query += """
-            (CRE_SEQ, ID_NM, TRD_DT, ITEM_CD, AMOUNT)
-            VALUES(%s, %s, %s, %s, %s)"""
-
-        return query
-
-    # 테이블명 상수
-    @constant
-    def TBL_IDX(self):
-        if self.isFixed():
-            return 'WBS_IDX_FIX'
-        else:
-            return 'WBS_IDX_SET'
-
-    @constant
-    def TBL_FACT_INFO(self):
-        if self.isFixed():
-            return 'WBS_FACT_INFO_FIX'
-        else:
-            return 'WBS_FACT_INFO_SET'
-
-    @constant
-    def TBL_IND_WT(self):
-        if self.isFixed():
-            return 'WBS_IND_WT_FIX'
-        else:
-            return 'WBS_IND_WT_SET'

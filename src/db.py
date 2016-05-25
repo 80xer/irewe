@@ -1,10 +1,12 @@
 # -*- coding:cp949 -*-
 import sys
+import os
 import MySQLdb
 import datetime
 from src.utility import DateUtility
 from src.utility import Utility
 from src.read import Series
+import ConfigParser
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -12,12 +14,16 @@ sys.setdefaultencoding('utf-8')
 
 class DbHelper():
     def __init__(self):
+        configParser = ConfigParser.RawConfigParser()
+        configFilePath = r'config.txt'
+        configParser.read(configFilePath)
+        self.dbconfig = configParser.items('db-config')
         self.__wbsDbConfig = {
-            'user': 'iwbsuser',
-            'password': 'iwbsuser2016',
-            'host': '11.4.3.229',
-            'database': 'iwbs',
-            'raise_on_warnings': True
+            'user': configParser.get('db-config', 'user'),
+            'password': configParser.get('db-config', 'password'),
+            'host': configParser.get('db-config', 'host'),
+            'database': configParser.get('db-config', 'database'),
+            'raise_on_warnings': configParser.get('db-config', 'raise_on_warnings'),
         }
 
     def getConn(self):
@@ -219,22 +225,27 @@ class OutputToDB:
         self.CONST = const
 
     def insert_report(self, data):
+        util = Utility()
         try:
             atime = datetime.datetime.now()
             self.insert_iv(data)
-            print 'insert_iv Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - atime))
+            util.printKeyValue('    iv Time diff',
+                               datetime.datetime.now() - atime)
 
             btime = datetime.datetime.now()
             self.insert_factor(data)
-            print 'insert_factor Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - btime))
-            #
-            # ctime = datetime.datetime.now()
-            # self.insert_factor_weight(data)
-            # print 'insert_factor_weight Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - ctime))
-            #
-            # dtime = datetime.datetime.now()
-            # self.insert_warning_board_idx(data)
-            # print 'insert_warning_board_idx Time difference : {difftime}'.format(difftime=(datetime.datetime.now() - dtime))
+            util.printKeyValue('    factor Time diff',
+                               datetime.datetime.now() - btime)
+
+            ctime = datetime.datetime.now()
+            self.insert_factor_weight(data)
+            util.printKeyValue('    factor_weight Time diff',
+                               datetime.datetime.now() - ctime)
+
+            dtime = datetime.datetime.now()
+            self.insert_warning_board_idx(data)
+            util.printKeyValue('    index Time diff',
+                               datetime.datetime.now() - dtime)
         except Exception as inst:
             print type(inst)
             print inst.args
@@ -392,8 +403,7 @@ class OutputToDB:
         weight = fw['weight']
 
         insertData = []
-        elem = ()
-        id_info = (str(self.params['seq']), str(self.params['id_nm']))
+        id_info = (str(self.params['id_nm']), str(self.params['seq']))
 
         for i in range(len(weight)):
             for j in range(len(iv_list)):
@@ -401,11 +411,12 @@ class OutputToDB:
                 elem = (str(self.params['t1'].strftime('%Y%m')),
                         'FAC%s' %i,
                         iv_list[j],
-                        weight[i][j]
+                        weight[i][j],
+                        str(self.params['dv']),
+                        iv_list[j]
                        )
 
-                if not self.CONST.isFixed():
-                    elem = id_info + elem
+                elem = id_info + elem
 
                 insertData.append(elem)
 
@@ -413,15 +424,11 @@ class OutputToDB:
         cur = conn.cursor()
 
         try:
-            if self.CONST.isFixed():
-                cur.execute(
-                    self.CONST.QR_DELETE_IND_WT_SET)
-            else:
-                cur.execute(
-                    self.CONST.QR_DELETE_IND_WT_SET,
-                    (self.params['id_nm'], self.params['seq']))
+            cur.execute(
+                self.CONST.QR_DELETE_FACT_WT,
+                (self.params['id_nm'], self.params['seq']))
 
-            cur.executemany(self.CONST.QR_INSERT_IND_WT_SET, insertData)
+            cur.executemany(self.CONST.QR_INSERT_FACT_WT, insertData)
             conn.commit()
         except Exception as inst:
             print type(inst)
@@ -435,7 +442,7 @@ class OutputToDB:
         iv_sh = data['df_warning_idx']
 
         insertData = []
-        id_info = (str(self.params['seq']), str(self.params['id_nm']))
+        id_info = (str(self.params['id_nm']), str(self.params['seq']))
 
         for col in iv_sh.columns:
             if col == 'IDX':
@@ -443,12 +450,11 @@ class OutputToDB:
                     elem = ()
 
                     elem = (str(iv_sh['YYYYMM'][j]),
-                            str(col),
+                            self.params['dv'],
                             iv_sh[col][j]
                            )
 
-                    if not self.CONST.isFixed():
-                        elem = id_info + elem
+                    elem = id_info + elem
 
                     insertData.append(elem)
 
@@ -456,15 +462,11 @@ class OutputToDB:
         cur = conn.cursor()
 
         try:
-            if self.CONST.isFixed():
-                cur.execute(
-                    self.CONST.QR_DELETE_IDX_SET)
-            else:
-                cur.execute(
-                    self.CONST.QR_DELETE_IDX_SET,
-                    (self.params['id_nm'], self.params['seq']))
+            cur.execute(
+                self.CONST.QR_DELETE_IDX,
+                (self.params['id_nm'], self.params['seq']))
 
-            cur.executemany(self.CONST.QR_INSERT_IDX_SET, insertData)
+            cur.executemany(self.CONST.QR_INSERT_IDX, insertData)
             conn.commit()
         except Exception as inst:
             print type(inst)
