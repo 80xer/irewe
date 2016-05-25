@@ -17,7 +17,6 @@ class DbHelper():
         configParser = ConfigParser.RawConfigParser()
         configFilePath = r'config.txt'
         configParser.read(configFilePath)
-        self.dbconfig = configParser.items('db-config')
         self.__wbsDbConfig = {
             'user': configParser.get('db-config', 'user'),
             'password': configParser.get('db-config', 'password'),
