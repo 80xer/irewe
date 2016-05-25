@@ -6,24 +6,14 @@ import datetime
 from src.utility import DateUtility
 from src.utility import Utility
 from src.read import Series
-import ConfigParser
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
 class DbHelper():
-    def __init__(self):
-        configParser = ConfigParser.RawConfigParser()
-        configFilePath = r'config.txt'
-        configParser.read(configFilePath)
-        self.__wbsDbConfig = {
-            'user': configParser.get('db-config', 'user'),
-            'password': configParser.get('db-config', 'password'),
-            'host': configParser.get('db-config', 'host'),
-            'database': configParser.get('db-config', 'database'),
-            'raise_on_warnings': configParser.get('db-config', 'raise_on_warnings'),
-        }
+    def __init__(self, config):
+        self.__wbsDbConfig = config
 
     def getConn(self):
         config = self.__wbsDbConfig
@@ -103,9 +93,8 @@ class queries():
         return result
 
     def getDv(self, dv):
-        db = DbHelper()
         result = []
-        dataTuples = db.exeData(self.CONST.QR_SELECT_DV % dv)
+        dataTuples = self.db.exeData(self.CONST.QR_SELECT_DV % dv)
         dbData = self.extract_from_list(dataTuples)
         result.extend(dbData)
         return result
@@ -115,8 +104,8 @@ class queries():
         return items
 
     def getItems(self, id, seq, dvcd):
-        db = DbHelper()
-        items = db.exeData(self.CONST.QR_SELECT_ITEM % (dvcd))
+
+        items = self.db.exeData(self.CONST.QR_SELECT_ITEM % (dvcd))
 
         itemCdSelect = []
         itemNmSelect = []
@@ -173,7 +162,7 @@ class queries():
         allSelect.append(''.join(dataSelect))
 
         result = []
-        dataTuples = db.exeData(''.join(allSelect))
+        dataTuples = self.db.exeData(''.join(allSelect))
         dbData = self.extract_from_list(dataTuples)
         result.extend(dbData)
         return result
@@ -218,10 +207,10 @@ class queries():
 
 
 class OutputToDB:
-
-    def __init__(self, params, const):
+    def __init__(self, params, const, dbs):
         self.params = params
         self.CONST = const
+        self.db = dbs
 
     def insert_report(self, data):
         util = Utility()
@@ -250,7 +239,6 @@ class OutputToDB:
             print inst.args
 
     def insert_iv(self, data):
-        db = DbHelper()
         iv_sh = data['df_iv_sh']
         iv_sh_digit = data['df_iv_sh_digit']
         iv_info = data['iv_info_dict']
@@ -299,7 +287,7 @@ class OutputToDB:
 
                     insertData.append(elem)
 
-        conn = db.getConn()
+        conn = self.db.getConn()
         cur = conn.cursor()
 
         try:
@@ -315,15 +303,12 @@ class OutputToDB:
         conn.close()
 
     def insert_factor(self, data):
-        db = DbHelper()
         iv_sh = data['df_factor_yyyymm']
         iv_info = data['factor_info_dict']
         fw = data['factor_weight']
-        weight = fw['weight']
         fracs = fw['fracs']
 
         insertData = []
-        elem = ()
 
         code_ordered = []
         code_ordered.append('YYYYMM')
@@ -379,7 +364,7 @@ class OutputToDB:
 
                     insertData.append(elem)
 
-        conn = db.getConn()
+        conn = self.db.getConn()
         cur = conn.cursor()
 
         try:
@@ -396,7 +381,6 @@ class OutputToDB:
         conn.close()
 
     def insert_factor_weight(self, data):
-        db = DbHelper()
         fw = data['factor_weight']
         iv_list = fw['col_list']
         weight = fw['weight']
@@ -419,7 +403,7 @@ class OutputToDB:
 
                 insertData.append(elem)
 
-        conn = db.getConn()
+        conn = self.db.getConn()
         cur = conn.cursor()
 
         try:
@@ -437,7 +421,6 @@ class OutputToDB:
         conn.close()
 
     def insert_warning_board_idx(self, data):
-        db = DbHelper()
         iv_sh = data['df_warning_idx']
 
         insertData = []
@@ -446,8 +429,6 @@ class OutputToDB:
         for col in iv_sh.columns:
             if col == 'IDX':
                 for j in range(len(iv_sh[col])):
-                    elem = ()
-
                     elem = (str(iv_sh['YYYYMM'][j]),
                             self.params['dv'],
                             iv_sh[col][j]
@@ -457,7 +438,7 @@ class OutputToDB:
 
                     insertData.append(elem)
 
-        conn = db.getConn()
+        conn = self.db.getConn()
         cur = conn.cursor()
 
         try:

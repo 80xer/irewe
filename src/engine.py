@@ -18,7 +18,7 @@ class Engine:
         self.qr = qr
         return
 
-    def run(self, params, options):
+    def start(self, params, options):
         t0 = params['t0']   # 초기   날짜 세팅
         t1 = params['t1']   # 마지막 날짜 세팅
         util = Utility()
@@ -28,8 +28,8 @@ class Engine:
 
         atime = datetime.datetime.now()
         items = self.qr.getItems(options.userId, options.seq, options.dv)
-
-        util.printKeyValue('    GetItems Time diff', datetime.datetime.now() - atime)
+        util.printKeyValue(
+            '    GetItems Time diff', datetime.datetime.now() - atime)
         # 유저 셋팅
         #  아이템 받기
         iv_total.extend(items)
@@ -40,8 +40,10 @@ class Engine:
         # debug 용 데이터 축소
         if options.debug:
             iv_total = iv_total[:12]
-            print "length of iv_total is %s" %len(iv_total)
+            print "length of iv_total is %s" % len(iv_total)
 
+        # time check
+        iv_code_time = datetime.datetime.now()
         # 독립변수별 코드 <--> 이름 Dictionary 세팅
         iv_code = {}
         for iv in iv_total:
@@ -61,6 +63,10 @@ class Engine:
             iv.set_interpolated_data(month_list_months, month_list_str)
             iv_info_dict[iv.code] = {}
             iv_info_dict[iv.code]['group'] = iv.group
+
+        util.printKeyValue(
+            '    iv_code_time Time diff',
+            datetime.datetime.now() - iv_code_time)
 
         # out of sample months
         month_list_str_out, month_list_months_out = du.get_montly_span(
@@ -98,23 +104,23 @@ class Engine:
                                                     iv_info_dict)
         # 시계열 길이 하나 줄어들음.
 
-        # out of sample months -------------------------------------------------
+        # out of sample months ------------------------------------------------
         # df_iv_out = pp.get_adf_test_after_df(df_iv_out, iv_info_dict)
         #  시계열 길이 하나 줄어들음.
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
 
         # Hp Filter
         df_iv = pp.get_hp_filter(df_iv, params['hp_filter'])
 
-        # out of sample months -------------------------------------------------
+        # out of sample months ------------------------------------------------
         df_iv_out = pp.get_hp_filter(df_iv_out, params['hp_filter'])
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
 
         # 종속변수
         df_dv = read.convert_series_list_to_dataframe(dv_1)
         df_dv_out = read.convert_series_list_to_dataframe(dv_1_out)
 
-        df_dv = df_dv[1:].reset_index(drop=True) # 맨 앞 데이터 차분
+        df_dv = df_dv[1:].reset_index(drop=True)  # 맨 앞 데이터 차분
         df_dv_out = df_dv_out[1:].reset_index(drop=True)
 
         df_iv_sh = df_iv
@@ -124,7 +130,7 @@ class Engine:
             df_iv_sh, df_iv_sh_out = pp.scale_iv(df_iv_sh, df_iv_sh_out)
 
         df_iv_sh['DV'] = df_dv[df_dv.columns[2]]
-        df_iv_sh_out['DV'] = df_dv_out[df_dv_out.columns[2]] # out of sample
+        df_iv_sh_out['DV'] = df_dv_out[df_dv_out.columns[2]]    # out of sample
 
         # nts 계산
         nts_module = NtsCaldulator()
@@ -148,7 +154,7 @@ class Engine:
         # filtered = srted[:149]
 
         code_list = []
-        for f in filtered :
+        for f in filtered:
             code_list.append(f[0])
 
         df_iv_flt = df_iv_sh[code_list]
@@ -217,7 +223,7 @@ class Engine:
     def list_to_dict(self, list):
         result = {}
         for i in range(len(list)):
-             result[list[i][0]] = list[i][1]
+            result[list[i][0]] = list[i][1]
         return result
 
     def cal_warning_idx(self, factor_info_dict, df_factor_series):
@@ -255,4 +261,3 @@ class Engine:
             df_warning_idx.set_value(i, 'IDX', warning_idx)
 
         return df_warning_idx
-

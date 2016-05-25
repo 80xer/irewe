@@ -105,18 +105,3 @@ class Const():
             VALUES(%s, %s, %s, %s, %s)"""
 
         return query
-
-
-
-
-
-
-
-
-    @constant
-    def QR_SELECT_ID_SETUP(self):  # 파라미터 셋업 조건 조회
-        return "select * from wbs_id_setup where id_nm = '%s' and cre_seq = %s;"
-
-    @constant
-    def QR_SELECT_DV_MAST(self):    # DV 정보 조회
-        return "select * from wbs_dv_mast where item_cd = '%s';"
