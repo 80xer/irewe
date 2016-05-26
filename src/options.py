@@ -31,7 +31,7 @@ def set_options():
     parser.add_option(
         '-i', '--id',
         dest='userId',
-        default='',
+        default='system',
         help='set user id'
     )
 
