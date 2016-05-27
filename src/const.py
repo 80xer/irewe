@@ -92,6 +92,58 @@ class Const():
         return query
 
     @constant
+    def QR_SELECT_FACT_SORTED(self):  # 팩터 wt 값으로 소팅
+
+        query = "select fact_nm, fact_wt, up_dn " \
+                "from iwbs_fact_info " \
+                "where id_nm = '%s' " \
+                "and cre_seq = '%s' " \
+                "and dv_cd = '%s' " \
+                "and trd_dt = '%s' " \
+                "order by fact_wt desc"
+
+        return query
+
+    @constant
+    def QR_DELETE_FACT_FORM(self):  # 독립변수 비중 값들 삭제
+        query = """DELETE from iwbs_fact_form where id_nm = %s and cre_seq = %s"""
+
+        return query
+
+    @constant
+    def QR_INSERT_FACT_FORM(self):  # 팩터 wt 값으로 소팅
+
+        query = "insert into iwbs_fact_form (id_nm, cre_seq, trd_dt, " \
+                "fact_nm, parent_item_cd, dv_cd) "\
+                "select	id_nm, cre_seq, trd_dt, fact_nm, " \
+                "parent_item_cd, dv_cd " \
+                "from	(" \
+                "SELECT	sum(a.item_wt) sum_item_wt, " \
+                "a.id_nm, a.cre_seq, a.trd_dt, a.fact_nm, a.item_cd, " \
+                "b.item_nm, b.parent_item_cd, a.dv_cd " \
+                "FROM	iwbs.iwbs_fact_wt a, " \
+                "       iwbs.iwbs_ind_var_mast b " \
+                "where	a.id_nm = '%s' " \
+                "and		a.cre_seq = '%s' " \
+                "and		a.dv_cd = '%s' " \
+                "and		a.fact_nm = '%s' " \
+                "and		a.item_wt %s 0 " \
+                "and		a.item_cd = b.item_cd " \
+                "and		b.parent_item_cd not in	( " \
+                "               select	parent_item_cd " \
+                "               from	iwbs.iwbs_fact_form " \
+                "               where	id_nm = '%s' " \
+                "               and		cre_seq = '%s' " \
+                "               and		dv_cd = '%s' " \
+                "               ) " \
+                "group by id_nm, cre_seq, trd_dt, fact_nm, " \
+                "parent_item_cd " \
+                "order by 1 %s " \
+                "limit 1 ) c"
+
+        return query
+
+    @constant
     def QR_DELETE_IDX(self):  # 위기지수 삭제
         query = """DELETE from iwbs_idx_data where id_nm = %s and cre_seq = %s"""
 

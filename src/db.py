@@ -231,9 +231,14 @@ class OutputToDB:
                                datetime.datetime.now() - ctime)
 
             dtime = datetime.datetime.now()
+            self.insert_factor_parent()
+            util.printKeyValue('    factor parent Time diff',
+                               datetime.datetime.now() - dtime)
+
+            etime = datetime.datetime.now()
             self.insert_warning_board_idx(data)
             util.printKeyValue('    index Time diff',
-                               datetime.datetime.now() - dtime)
+                               datetime.datetime.now() - etime)
         except Exception as inst:
             print type(inst)
             print inst.args
@@ -413,6 +418,56 @@ class OutputToDB:
 
             cur.executemany(self.CONST.QR_INSERT_FACT_WT, insertData)
             conn.commit()
+        except Exception as inst:
+            print type(inst)
+            print inst.args
+            conn.rollback()
+
+        conn.close()
+
+    def insert_factor_parent(self):
+        elem = (
+                self.params['id_nm'],
+                self.params['seq'],
+                self.params['dv'],
+                str(self.params['t1'].year) + ('%02d' % self.params['t1'].month)
+            )
+        sortedFactors = self.db.exeData(
+            self.CONST.QR_SELECT_FACT_SORTED % (elem)
+        )
+
+        commData = (
+            self.params['id_nm'],
+            self.params['seq'],
+            self.params['dv']
+        )
+
+        conn = self.db.getConn()
+        cur = conn.cursor()
+
+        try:
+
+            cur.execute(
+                self.CONST.QR_DELETE_FACT_FORM,
+                (self.params['id_nm'], self.params['seq']))
+
+            for factor in sortedFactors:
+                elem = (
+                    factor[0],
+                )
+                if factor[2] == 'U':
+                    elem = elem + ('>',)
+                    ord = ('desc',)
+                else:
+                    elem = elem + ('<',)
+                    ord = ('asc',)
+
+                elem = commData + elem + commData + ord
+
+                cur.execute(
+                    self.CONST.QR_INSERT_FACT_FORM % elem)
+                conn.commit()
+
         except Exception as inst:
             print type(inst)
             print inst.args
