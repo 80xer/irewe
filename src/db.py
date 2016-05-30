@@ -244,8 +244,8 @@ class OutputToDB:
             print inst.args
 
     def insert_iv(self, data):
-        iv_sh = data['df_iv_sh']
-        iv_sh_digit = data['df_iv_sh_digit']
+        iv_sh = data['df_iv']
+        iv_sh_digit = data['df_iv_digit']
         iv_info = data['iv_info_dict']
 
         insertData = []

@@ -59,8 +59,8 @@ util.printLine()
 engine_time = datetime.datetime.now()
 util.printLine()
 util.printKeyValue('Engine Start', '')
-engine = engine.Engine(qr)
-result = engine.start(params, opts)
+engine = engine.Engine(qr, params, opts)
+result = engine.start()
 
 # Engine running time 출력
 util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))
