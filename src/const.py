@@ -113,33 +113,39 @@ class Const():
     @constant
     def QR_INSERT_FACT_FORM(self):  # 팩터 wt 값으로 소팅
 
-        query = "insert into iwbs_fact_form (id_nm, cre_seq, trd_dt, " \
-                "fact_nm, parent_item_cd, dv_cd) "\
-                "select	id_nm, cre_seq, trd_dt, fact_nm, " \
-                "parent_item_cd, dv_cd " \
-                "from	(" \
-                "SELECT	sum(a.item_wt) sum_item_wt, " \
-                "a.id_nm, a.cre_seq, a.trd_dt, a.fact_nm, a.item_cd, " \
-                "b.item_nm, b.parent_item_cd, a.dv_cd " \
-                "FROM	iwbs.iwbs_fact_wt a, " \
-                "       iwbs.iwbs_ind_var_mast b " \
-                "where	a.id_nm = '%s' " \
-                "and		a.cre_seq = '%s' " \
-                "and		a.dv_cd = '%s' " \
-                "and		a.fact_nm = '%s' " \
-                "and		a.item_wt %s 0 " \
-                "and		a.item_cd = b.item_cd " \
-                "and		b.parent_item_cd not in	( " \
-                "               select	parent_item_cd " \
-                "               from	iwbs.iwbs_fact_form " \
-                "               where	id_nm = '%s' " \
-                "               and		cre_seq = '%s' " \
-                "               and		dv_cd = '%s' " \
-                "               ) " \
-                "group by id_nm, cre_seq, trd_dt, fact_nm, " \
-                "parent_item_cd " \
-                "order by 1 %s " \
-                "limit 1 ) c"
+        query = "select parent_item_cd, sum(item_wt) " \
+                "from " \
+                "( " \
+                "select parent_item_cd, n, item_wt " \
+                "from   " \
+                "( select @nm := '', @n := 0 ) init " \
+                "join " \
+                "( " \
+                "SELECT @n := if(parent_item_cd != @nm, 1, @n + 1) as n, " \
+                    "@nm := parent_item_cd " \
+                    "parent_item_cd, " \
+                    "item_wt " \
+                "FROM   iwbs.iwbs_fact_wt a " \
+                "where  a.id_nm = '%s'  " \
+                "and        a.cre_seq = '%s'  " \
+                "and        a.dv_cd = '%s'  " \
+                "and        a.fact_nm = '%s'  " \
+                "and        a.item_wt %s 0 " \
+                "and        a.parent_item_cd not in (  " \
+                               "select  parent_item_cd  " \
+                               "from    iwbs.iwbs_fact_form  " \
+                               "where   id_nm = '%s'  " \
+                               "and     cre_seq = '%s'  " \
+                               "and     dv_cd = '%s'  " \
+                               ") " \
+                "order by a.parent_item_cd asc, item_wt %s " \
+                        ") x " \
+                    "where   n <= 20 " \
+                    "order by parent_item_cd, n         " \
+                ") a " \
+                "group by parent_item_cd " \
+                "order by 2 %s " \
+                "limit 1"
 
         return query
 

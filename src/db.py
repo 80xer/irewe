@@ -462,7 +462,7 @@ class OutputToDB:
                     elem = elem + ('<',)
                     ord = ('asc',)
 
-                elem = commData + elem + commData + ord
+                elem = commData + elem + commData + ord + ord
 
                 cur.execute(
                     self.CONST.QR_INSERT_FACT_FORM % elem)
