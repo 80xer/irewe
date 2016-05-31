@@ -113,10 +113,20 @@ class Const():
     @constant
     def QR_INSERT_FACT_FORM(self):  # 팩터 wt 값으로 소팅
 
-        query = "select parent_item_cd, sum(item_wt) " \
+        query = "insert into iwbs_fact_form (id_nm, cre_seq, trd_dt, " \
+                "fact_nm, parent_item_cd, dv_cd) "\
+                "select id_nm, cre_seq, trd_dt, " \
+                        "fact_nm, " \
+                        "parent_item_cd, " \
+                        "dv_cd " \
                 "from " \
                 "( " \
-                "select parent_item_cd, n, item_wt " \
+                "select parent_item_cd, n, item_wt, " \
+                        "id_nm, " \
+                        "cre_seq, " \
+                        "trd_dt, " \
+                        "fact_nm, " \
+                        "dv_cd " \
                 "from   " \
                 "( select @nm := '', @n := 0 ) init " \
                 "join " \
@@ -124,7 +134,12 @@ class Const():
                 "SELECT @n := if(parent_item_cd != @nm, 1, @n + 1) as n, " \
                     "@nm := parent_item_cd " \
                     "parent_item_cd, " \
-                    "item_wt " \
+                    "item_wt, " \
+                    "id_nm, " \
+                    "cre_seq, " \
+                    "trd_dt, " \
+                    "fact_nm, " \
+                    "dv_cd " \
                 "FROM   iwbs.iwbs_fact_wt a " \
                 "where  a.id_nm = '%s'  " \
                 "and        a.cre_seq = '%s'  " \
@@ -143,8 +158,8 @@ class Const():
                     "where   n <= 20 " \
                     "order by parent_item_cd, n         " \
                 ") a " \
-                "group by parent_item_cd " \
-                "order by 2 %s " \
+                "group by parent_item_cd, id_nm, cre_seq, trd_dt, fact_nm, dv_cd " \
+                "order by sum(item_wt) %s " \
                 "limit 1"
 
         return query
