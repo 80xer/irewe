@@ -35,7 +35,7 @@ const = const.Const(opts.fix)   # 상수세팅
 
 # db config
 configParser = ConfigParser.RawConfigParser()
-configParser.read(r'config.txt')
+configParser.read(r'config')
 config = {
     'user': configParser.get('db-config', 'user'),
     'password': configParser.get('db-config', 'password'),
