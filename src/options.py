@@ -45,7 +45,6 @@ def set_options():
     parser.add_option(
         '-v', '--dv',
         dest='dv',
-        default='FGSC.15.10.10',
         help='choice dependent variable'
     )
 
@@ -64,6 +63,9 @@ def set_options():
 def get_options():
     parser = set_options()
     (options, args) = parser.parse_args()
+
+    util = Utility()
+
     if options.fix is False and options.userId is '':
         print 'insert fix or userId options'
         print u'fix 또는 id 옵션을 설정하세요.'
@@ -72,7 +74,12 @@ def get_options():
     if options.fix:
         options.userId = 'system'
 
-    util = Utility()
+    if options.dv is '' or options.dv is None and \
+            options.loop is '' or options.loop is None:
+        util.printKeyValue('Insert DV code', '')
+        sys.exit()
+
+
     # print options
     util.printLine()
     util.printKeyValue('debug', options.debug, open=False)
