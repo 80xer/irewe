@@ -145,16 +145,16 @@ class queries():
 
         itemCdSelect.append(
             "from iwbs_ind_var_mast a, iwbs_indust_mast b "
-            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+            "where b.dv_cd = '" + dvcd + "' and a.item_cd = b.item_cd")
         itemNmSelect.append(
             "from iwbs_ind_var_mast a, iwbs_indust_mast b "
-            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+            "where b.dv_cd = '" + dvcd + "' and a.item_cd = b.item_cd")
         pathSelect.append(
             "from iwbs_ind_var_mast a, iwbs_indust_mast b "
-            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd")
+            "where b.dv_cd = '" + dvcd + "' and a.item_cd = b.item_cd")
         dataSelect.append(
             "from iwbs_ind_var_data a, iwbs_indust_mast b "
-            "where b.dv_cd = 'FGSC.15.10.10' and a.item_cd = b.item_cd "
+            "where b.dv_cd = '" + dvcd + "' and a.item_cd = b.item_cd "
             "group by a.trd_dt")
 
         allSelect = []

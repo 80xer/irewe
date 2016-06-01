@@ -51,13 +51,16 @@ if opts.dv is None and opts.loop is True:
 else:
     dvs = ((opts.seq, opts.dv),)
 
+cnt = 0
 try:
     for dv in dvs:
+        cnt = cnt + 1
         seq = dv[0]
         dv = dv[1]
         params = qr.getSetup(opts.userId, seq, dv)
 
         util = Utility()
+        util.printKeyValue('\n %s >> SEQ: %s  DV: %s' % (cnt, seq, dv), '\n')
 
         # print parameters
         util.printLine()

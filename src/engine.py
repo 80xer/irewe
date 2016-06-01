@@ -29,8 +29,8 @@ class Engine:
         atime = datetime.datetime.now()
         items = self.qr.getItems(
             self.options.userId,
-            self.options.seq,
-            self.options.dv
+            self.params['seq'],
+            self.params['dv']
         )
         # 유저 셋팅
         #  아이템 받기
