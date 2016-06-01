@@ -49,6 +49,14 @@ def set_options():
     )
 
     parser.add_option(
+        '-l', '--loop',
+        action='store_true',
+        dest='loop',
+        default=False,
+        help='set loop flag'
+    )
+
+    parser.add_option(
         '--shift',
         action='store_true',
         dest='shift',
