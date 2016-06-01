@@ -45,39 +45,57 @@ config = {
 
 dbs = db.DbHelper(config)
 qr = db.queries(dbs, const)
-params = qr.getSetup(opts.userId, opts.seq, opts.dv)
 
-util = Utility()
+if opts.dv is None and opts.loop is True:
+    dvs = qr.getDvs(opts.userId)
+else:
+    dvs = ((opts.seq, opts.dv),)
 
-# print parameters
-util.printLine()
-for x in params:
-    util.printKeyValue(x, params[x], open=False)
-util.printLine()
+try:
+    for dv in dvs:
+        seq = dv[0]
+        dv = dv[1]
+        params = qr.getSetup(opts.userId, seq, dv)
 
-# run engine
-engine_time = datetime.datetime.now()
-util.printLine()
-util.printKeyValue('Engine Start', '')
-engine = engine.Engine(qr, params, opts)
-result = engine.start()
+        util = Utility()
 
-# Engine running time 출력
-util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))
-util.printLine()
+        # print parameters
+        util.printLine()
+        for x in params:
+            util.printKeyValue(x, params[x], open=False)
+        util.printLine()
 
-# db output
-output_time = datetime.datetime.now()
-util.printLine()
-util.printKeyValue('Output Start', '')
-dbHelper = src.db.OutputToDB(params, const, dbs)
-dbHelper.insert_report(result)
+        # continue
 
-# Output running time 출력
-util.printKeyValue('Output Time diff', (datetime.datetime.now() - output_time))
-util.printLine()
+        # run engine
+        engine_time = datetime.datetime.now()
+        util.printLine()
+        util.printKeyValue('Engine Start', '')
+        engine = engine.Engine(qr, params, opts)
+        result = engine.start()
+
+        # Engine running time 출력
+        util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))
+        util.printLine()
+
+        # db output
+        output_time = datetime.datetime.now()
+        util.printLine()
+        util.printKeyValue('Output Start', '')
+        dbHelper = src.db.OutputToDB(params, const, dbs)
+        dbHelper.insert_report(result)
+
+        # Output running time 출력
+        util.printKeyValue('Output Time diff', (datetime.datetime.now() - output_time))
+        util.printLine()
+except Exception as inst:
+    print params
+    print type(inst)
+    print inst.args
 
 # running time 출력
 util.printLine()
-util.printKeyValue('Total Time diff', (datetime.datetime.now() - start_time))
+util.printKeyValue('%s DV Total Time diff' % len(dvs),
+                   (datetime.datetime.now() -
+                                          start_time))
 util.printLine()

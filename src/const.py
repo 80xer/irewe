@@ -15,6 +15,13 @@ class Const():
 
     # 쿼리문 상수
     @constant
+    def QR_SELECT_ALL_DV(self):
+        return "select  cre_seq, dv_cd " \
+                "from  iwbs_dv_setup " \
+                "where id_nm = '%s' " \
+                "order by cre_seq, dv_cd ;"
+
+    @constant
     def QR_SELECT_DV_SETUP(self):  # 파라미터 셋업 조건 조회
         return "select	b.id_nm, b.cre_seq, a.dv_cd, b.strt_dt, b.end_dt, " \
                "b.learn_dt, b.nts, b.hp_filter, b.pca, b.lag, b.scaling, " \

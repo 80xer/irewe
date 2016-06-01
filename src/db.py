@@ -49,6 +49,11 @@ class queries():
         self.utility = Utility()
         self.CONST = const
 
+    def getDvs(self, id):
+        dataTuples = self.db.exeData(
+            self.CONST.QR_SELECT_ALL_DV % id)
+        return dataTuples
+
     def getSetup(self, id, seq, dvcd):
 
         # 변수별 컬럼 값
