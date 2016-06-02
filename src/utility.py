@@ -81,6 +81,8 @@ class Utility:
         self.printKeyValue(key, value, '.')
 
     def printKeyValue(self, key, value, dot=' ', open=True):
+        return
+
         if open:
             kp = '<'
             vp = '>'
@@ -107,4 +109,5 @@ class Utility:
 
 
     def printLine(self):
+        return
         print '{:*^60}'.format('')

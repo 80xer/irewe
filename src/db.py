@@ -14,16 +14,22 @@ sys.setdefaultencoding('utf-8')
 class DbHelper():
     def __init__(self, config):
         self.__wbsDbConfig = config
-
+        self.conn = None
     def getConn(self):
         config = self.__wbsDbConfig
-        self.conn = MySQLdb.connect(host=config["host"], port=3306, user=config["user"], passwd=config["password"], db=config["database"], charset ='utf8')
+        if self.conn is None or self.conn.open is 0:
+            self.conn = MySQLdb.connect(host=config["host"], port=3306, user=config["user"], passwd=config["password"], db=config["database"], charset ='utf8')
         return self.conn
 
     def exeData(self, query):
         conn = self.getConn()
         cur = conn.cursor()
-        cur.execute(query)
+        try:
+            cur.execute(query)
+        except Exception as inst:
+            print type(inst)
+            print inst.args
+
         results = cur.fetchall()
 
         conn.close()
@@ -220,6 +226,7 @@ class OutputToDB:
     def insert_report(self, data):
         util = Utility()
         try:
+            util.printKeyValue('in output', '', open=True)
             atime = datetime.datetime.now()
             self.insert_iv(data)
             util.printKeyValue('    iv Time diff',
@@ -266,7 +273,7 @@ class OutputToDB:
                                 str(iv_sh['YYYYMM'][j]),
                                 str(self.params['dv']),
                                 str(col),
-                                iv_sh[col][j],
+                                float(iv_sh[col][j]),
                                 int(iv_sh_digit[col][j]),
                                 iv_info[col]['dir'],
                                 iv_info[col]['nts'],
@@ -283,7 +290,7 @@ class OutputToDB:
                                 str(iv_sh['YYYYMM'][j]),
                                 str(self.params['dv']),
                                 str(col),
-                                iv_sh[col][j],
+                                float(iv_sh[col][j]),
                                 int(iv_sh_digit[col][j]),
                                 None,
                                 None,
@@ -302,7 +309,8 @@ class OutputToDB:
 
         try:
             cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
-                        (self.params['id_nm'], self.params['seq']))
+                        (self.params['id_nm'], self.params['seq'],
+                         self.params['dv']))
             cur.executemany(self.CONST.QR_INSERT_IND_VAR_INFO, insertData)
             conn.commit()
         except Exception as inst:
@@ -380,7 +388,7 @@ class OutputToDB:
         try:
             cur.execute(
                 self.CONST.QR_DELETE_FACT_INFO,
-                (self.params['id_nm'], self.params['seq']))
+                (self.params['id_nm'], self.params['seq'], self.params['dv']))
             cur.executemany(self.CONST.QR_INSERT_FACT_INFO, insertData)
             conn.commit()
         except Exception as inst:
@@ -419,7 +427,7 @@ class OutputToDB:
         try:
             cur.execute(
                 self.CONST.QR_DELETE_FACT_WT,
-                (self.params['id_nm'], self.params['seq']))
+                (self.params['id_nm'], self.params['seq'], self.params['dv']))
 
             cur.executemany(self.CONST.QR_INSERT_FACT_WT, insertData)
             conn.commit()
@@ -454,7 +462,7 @@ class OutputToDB:
 
             cur.execute(
                 self.CONST.QR_DELETE_FACT_FORM,
-                (self.params['id_nm'], self.params['seq']))
+                (self.params['id_nm'], self.params['seq'], self.params['dv']))
 
             for factor in sortedFactors:
                 elem = (
@@ -504,7 +512,7 @@ class OutputToDB:
         try:
             cur.execute(
                 self.CONST.QR_DELETE_IDX,
-                (self.params['id_nm'], self.params['seq']))
+                (self.params['id_nm'], self.params['seq'], self.params['dv']))
 
             cur.executemany(self.CONST.QR_INSERT_IDX, insertData)
             conn.commit()

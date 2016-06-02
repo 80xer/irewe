@@ -109,8 +109,9 @@ class PreProcessing():
             d_out = df_out[col]
             mean = np.average(d)
             stdev = np.std(d)
-            df[col] = (d - mean) / stdev
-            df_out[col] = (d_out - mean) / stdev
+            if stdev != 0:
+                df[col] = (d - mean) / stdev
+                df_out[col] = (d_out - mean) / stdev
 
         return df, df_out
 

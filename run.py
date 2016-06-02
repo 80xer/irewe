@@ -45,6 +45,7 @@ config = {
 
 dbs = db.DbHelper(config)
 qr = db.queries(dbs, const)
+util = Utility()
 
 if opts.dv is None and opts.loop is True:
     dvs = qr.getDvs(opts.userId)
@@ -57,10 +58,10 @@ try:
         cnt = cnt + 1
         seq = dv[0]
         dv = dv[1]
+        params = ()
         params = qr.getSetup(opts.userId, seq, dv)
 
-        util = Utility()
-        util.printKeyValue('\n %s >> SEQ: %s  DV: %s' % (cnt, seq, dv), '\n')
+        print '\n %s >> SEQ: %s  DV: %s \n' % (cnt, seq, dv)
 
         # print parameters
         util.printLine()
@@ -74,8 +75,8 @@ try:
         engine_time = datetime.datetime.now()
         util.printLine()
         util.printKeyValue('Engine Start', '')
-        engine = engine.Engine(qr, params, opts)
-        result = engine.start()
+        irEngine = engine.Engine(qr, params, opts)
+        result = irEngine.start()
 
         # Engine running time 출력
         util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))

@@ -54,7 +54,7 @@ class Const():
     @constant
     def QR_DELETE_IND_VAR_INFO(self):  # 독립변수 값들 삭제
         return """DELETE from iwbs_ind_var_info where id_nm = %s and cre_seq
-        = %s """
+        = %s and dv_cd = %s """
 
     @constant
     def QR_INSERT_IND_VAR_INFO(self):  # 독립변수 값들 생성
@@ -68,7 +68,7 @@ class Const():
 
     @constant
     def QR_DELETE_FACT_INFO(self):    # 팩터 값들 삭제
-        query = """DELETE from iwbs_fact_info where id_nm = %s and cre_seq = %s"""
+        query = """DELETE from iwbs_fact_info where id_nm = %s and cre_seq = %s and dv_cd = %s """
 
         return query
 
@@ -84,7 +84,8 @@ class Const():
 
     @constant
     def QR_DELETE_FACT_WT(self):  # 독립변수 비중 값들 삭제
-        query = """DELETE from iwbs_fact_wt where id_nm = %s and cre_seq = %s"""
+        query = """DELETE from iwbs_fact_wt where id_nm = %s and cre_seq =
+        %s and dv_cd = %s """
 
         return query
 
@@ -113,7 +114,7 @@ class Const():
 
     @constant
     def QR_DELETE_FACT_FORM(self):  # 독립변수 비중 값들 삭제
-        query = """DELETE from iwbs_fact_form where id_nm = %s and cre_seq = %s"""
+        query = """DELETE from iwbs_fact_form where id_nm = %s and cre_seq = %s and dv_cd = %s """
 
         return query
 
@@ -173,7 +174,8 @@ class Const():
 
     @constant
     def QR_DELETE_IDX(self):  # 위기지수 삭제
-        query = """DELETE from iwbs_idx_data where id_nm = %s and cre_seq = %s"""
+        query = """DELETE from iwbs_idx_data where id_nm = %s and cre_seq =
+        %s and dv_cd = %s """
 
         return query
 

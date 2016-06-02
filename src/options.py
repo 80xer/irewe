@@ -95,6 +95,7 @@ def get_options():
     util.printKeyValue('userId', options.userId, open=False)
     util.printKeyValue('seq', options.seq, open=False)
     util.printKeyValue('dv', options.dv, open=False)
+    util.printKeyValue('loop', options.loop, open=False)
     util.printKeyValue('shift', options.shift, open=False)
     util.printLine()
 

@@ -18,7 +18,7 @@ class NtsCaldulator():
 
         for c in total_set_df.columns:
             if c != 'DV' and c != 'YYYYMM' and c != 'DATE':
-                 iv_info_dict[c].update(self.cal_nts(dv, total_set_df[c].tolist(), dv_crisis_digit_list, 30, intv, thres_cut, lag_cut))
+                iv_info_dict[c].update(self.cal_nts(dv, total_set_df[c].tolist(), dv_crisis_digit_list, 30, intv, thres_cut, lag_cut))
                 #(2016.03.10) nts 계산에서 선행기간 내 위기식별 구간 제한 추가작업 lag_cut
 
         return dv_crisis_digit_list, thres # 종속변수 위기여부 리스트, 임계치 반환
