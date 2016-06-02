@@ -101,5 +101,5 @@ except Exception as inst:
 util.printLine()
 util.printKeyValue('%s DV Total Time diff' % len(dvs),
                    (datetime.datetime.now() -
-                                          start_time))
+                                          start_time), ' ', True, True)
 util.printLine()

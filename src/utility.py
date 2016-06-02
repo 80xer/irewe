@@ -80,8 +80,9 @@ class Utility:
     def printKeyDotValue(self, key, value):
         self.printKeyValue(key, value, '.')
 
-    def printKeyValue(self, key, value, dot=' ', open=True):
-        return
+    def printKeyValue(self, key, value, dot=' ', open=True, use=False):
+        if use is False: return
+
 
         if open:
             kp = '<'
