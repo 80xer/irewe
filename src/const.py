@@ -58,13 +58,22 @@ class Const():
 
     @constant
     def QR_INSERT_IND_VAR_INFO(self):  # 독립변수 값들 생성
-        return """INSERT INTO iwbs_ind_var_info
-            (ID_NM, CRE_SEQ, TRD_DT, DV_CD, ITEM_CD, DIFF_AMOUNT, CRISIS_GB,
-            UP_DN,
-            NTS,
-            THRESHOLD, VAR_A, VAR_B, VAR_C, VAR_D, ADF_GB)
-            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-            %s)"""
+        return """LOAD DATA LOCAL INFILE %s INTO TABLE iwbs_ind_var_info
+            FIELDS TERMINATED BY ','
+            (
+            ID_NM, CRE_SEQ, TRD_DT, DV_CD, ITEM_CD, DIFF_AMOUNT, @ADF_GB,
+            @UP_DN, @NTS, @THRESHOLD,
+            @VAR_A, @VAR_B, @VAR_C, @VAR_D, CRISIS_GB
+            )
+            SET UP_DN = nullif(@UP_DN,''),
+            NTS = nullif(@NTS,''),
+            THRESHOLD = nullif(@THRESHOLD,''),
+            VAR_A = nullif(@VAR_A,''),
+            VAR_B = nullif(@VAR_B,''),
+            VAR_C = nullif(@VAR_C,''),
+            VAR_D = nullif(@VAR_D,''),
+            ADF_GB = nullif(@ADF_GB,' ');
+            """
 
     @constant
     def QR_DELETE_FACT_INFO(self):    # 팩터 값들 삭제

@@ -6,6 +6,7 @@ import datetime
 from src.utility import DateUtility
 from src.utility import Utility
 from src.read import Series
+from src.io import IO
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -230,7 +231,7 @@ class OutputToDB:
             atime = datetime.datetime.now()
             self.insert_iv(data)
             util.printKeyValue('    iv Time diff',
-                               datetime.datetime.now() - atime)
+                               datetime.datetime.now() - atime, ' ', True, True)
 
             btime = datetime.datetime.now()
             self.insert_factor(data)
@@ -268,13 +269,18 @@ class OutputToDB:
                     if datetime.datetime.strptime(
                         iv_sh['YYYYMM'][j] + '01', '%Y%m%d'
                     ).date() == self.params['t1']:
+                        if iv_info[col]['adf_test']:
+                            adf_gb = '1'
+                        else:
+                            adf_gb = '0'
+
                         elem = (str(self.params['id_nm']),
                                 str(self.params['seq']),
                                 str(iv_sh['YYYYMM'][j]),
                                 str(self.params['dv']),
                                 str(col),
                                 float(iv_sh[col][j]),
-                                int(iv_sh_digit[col][j]),
+                                adf_gb,
                                 iv_info[col]['dir'],
                                 iv_info[col]['nts'],
                                 iv_info[col]['thres'],
@@ -282,7 +288,7 @@ class OutputToDB:
                                 iv_info[col]['b'],
                                 iv_info[col]['c'],
                                 iv_info[col]['d'],
-                                iv_info[col]['adf_test']
+                                int(iv_sh_digit[col][j])
                                 )
                     else:
                         elem = (str(self.params['id_nm']),
@@ -291,7 +297,6 @@ class OutputToDB:
                                 str(self.params['dv']),
                                 str(col),
                                 float(iv_sh[col][j]),
-                                int(iv_sh_digit[col][j]),
                                 None,
                                 None,
                                 None,
@@ -299,7 +304,8 @@ class OutputToDB:
                                 None,
                                 None,
                                 None,
-                                None
+                                None,
+                                int(iv_sh_digit[col][j])
                                 )
 
                     insertData.append(elem)
@@ -307,11 +313,14 @@ class OutputToDB:
         conn = self.db.getConn()
         cur = conn.cursor()
 
+        io = IO()
+        file = io.print_df('data', insertData)
         try:
             cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
                         (self.params['id_nm'], self.params['seq'],
                          self.params['dv']))
-            cur.executemany(self.CONST.QR_INSERT_IND_VAR_INFO, insertData)
+
+            cur.execute(self.CONST.QR_INSERT_IND_VAR_INFO, file)
             conn.commit()
         except Exception as inst:
             print type(inst)

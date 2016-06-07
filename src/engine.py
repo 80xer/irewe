@@ -56,9 +56,17 @@ class Engine:
             self.params['t0'],
             self.params['t1'])
 
+        # out of sample months
+        month_list_str_out, month_list_months_out = du.get_montly_span(
+            self.params['t0'],
+            self.params['t2'])
+
         iv_total_out = copy.deepcopy(iv_total)
 
         iv_info_dict = {}
+
+        iv_total_out_time = datetime.datetime.now()
+
         for iv in iv_total:
             iv.set_monthly_data()  # 같은월에 여러 데이터중 최신 데이터만
             # 내삽
@@ -70,18 +78,15 @@ class Engine:
             '    interpolated Time diff',
             datetime.datetime.now() - interpolated_time)
 
-
-        iv_total_out_time = datetime.datetime.now()
-
-        # out of sample months
-        month_list_str_out, month_list_months_out = du.get_montly_span(
-            self.params['t0'],
-            self.params['t2'])
         for iv in iv_total_out:
             iv.set_monthly_data()
             iv.set_interpolated_data(month_list_months_out,
                                      month_list_str_out)
         # --------------------------------------------------
+
+        util.printKeyValue(
+            '    iv_total_out Time diff', datetime.datetime.now() -
+                                        iv_total_out_time)
 
         dv[0].set_monthly_data()
         dv[0].set_interpolated_data(month_list_months, month_list_str)
@@ -91,9 +96,6 @@ class Engine:
         dv_out[0].set_interpolated_data(month_list_months_out,
                                           month_list_str_out)
 
-        util.printKeyValue(
-            '    iv_total_out Time diff', datetime.datetime.now() -
-                                        iv_total_out_time)
         # 월중 최신데이터만 선택, 내삽 완료.
 
         df_iv_time = datetime.datetime.now()

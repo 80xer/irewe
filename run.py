@@ -79,7 +79,7 @@ try:
         result = irEngine.start()
 
         # Engine running time 출력
-        util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time))
+        util.printKeyValue('Engine Time diff', (datetime.datetime.now() - engine_time), ' ', True, True)
         util.printLine()
 
         # db output
@@ -90,7 +90,7 @@ try:
         dbHelper.insert_report(result)
 
         # Output running time 출력
-        util.printKeyValue('Output Time diff', (datetime.datetime.now() - output_time))
+        util.printKeyValue('Output Time diff', (datetime.datetime.now() - output_time), ' ', True, True)
         util.printLine()
 except Exception as inst:
     print params
