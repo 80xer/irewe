@@ -332,7 +332,9 @@ class OutputToDB:
             print type(inst)
             print inst.args
             conn.rollback()
+            conn.close()
             io.remove_file(file)
+            raise 'error insert ind_var'
 
         conn.close()
 
@@ -411,6 +413,8 @@ class OutputToDB:
             print type(inst)
             print inst.args
             conn.rollback()
+            conn.close()
+            raise 'error insert fact'
 
         conn.close()
 
@@ -451,6 +455,8 @@ class OutputToDB:
             print type(inst)
             print inst.args
             conn.rollback()
+            conn.close()
+            raise 'error insert fact weight'
 
         conn.close()
 
@@ -501,6 +507,8 @@ class OutputToDB:
             print type(inst)
             print inst.args
             conn.rollback()
+            conn.close()
+            raise 'error insert fact parent'
 
         conn.close()
 
@@ -536,5 +544,7 @@ class OutputToDB:
             print type(inst)
             print inst.args
             conn.rollback()
+            conn.close()
+            raise 'error insert idx'
 
         conn.close()
