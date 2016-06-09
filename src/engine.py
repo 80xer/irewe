@@ -21,7 +21,7 @@ class Engine:
         return
 
     def start(self):
-        util = Utility()
+        util = Utility(self.options.debug)
         iv_total = []
 
         # 디비에서 독립변수 받기

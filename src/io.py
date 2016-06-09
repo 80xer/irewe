@@ -28,3 +28,10 @@ class IO():
         except Exception as inst:
             print type(inst)
             print inst.args
+
+    def remove_file(self, filename):
+        try:
+            os.remove(filename)
+        except Exception as inst:
+            print type(ist)
+            print inst.args

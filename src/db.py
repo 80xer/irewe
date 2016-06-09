@@ -314,7 +314,12 @@ class OutputToDB:
         cur = conn.cursor()
 
         io = IO()
-        file = io.print_df('data', insertData)
+        file = io.print_df(
+            'data_%s_%s_%s'%(
+                self.params['id_nm'], self.params['seq'], self.params['dv']
+            ),
+            insertData
+        )
         try:
             cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
                         (self.params['id_nm'], self.params['seq'],
@@ -322,10 +327,12 @@ class OutputToDB:
 
             cur.execute(self.CONST.QR_INSERT_IND_VAR_INFO, file)
             conn.commit()
+            io.remove_file(file)
         except Exception as inst:
             print type(inst)
             print inst.args
             conn.rollback()
+            io.remove_file(file)
 
         conn.close()
 

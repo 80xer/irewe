@@ -63,7 +63,8 @@ class DateUtility():
 
 class Utility:
     # code --> 00000
-    def __init__(self):
+    def __init__(self, debug=False):
+        self.debug = debug
         return
 
     def convert_code(self, code):
@@ -81,8 +82,7 @@ class Utility:
         self.printKeyValue(key, value, '.')
 
     def printKeyValue(self, key, value, dot=' ', open=True, use=False):
-        if use is False: return
-
+        if self.debug is False: return
 
         if open:
             kp = '<'

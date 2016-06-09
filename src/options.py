@@ -83,7 +83,7 @@ def get_options():
         options.userId = 'system'
 
     if options.dv is '' or options.dv is None and \
-            options.loop is '' or options.loop is None:
+            options.loop is False or options.loop is None:
         util.printKeyValue('Insert DV code', '')
         sys.exit()
 
