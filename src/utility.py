@@ -85,7 +85,7 @@ class Utility:
         self.printKeyValue(key, value, '.')
 
     def printKeyValue(self, key, value, dot=' ', open=True, use=False):
-        if self.debug is False: return
+        # if self.debug is False: return
         if hasattr(self, 'logger'):
             self.printKeyValueWithLogger(key, value, dot, open, use)
             return
@@ -117,8 +117,6 @@ class Utility:
 
     def printKeyValueWithLogger(self, key, value, dot=' ', open=True,
                                use=False):
-        if self.debug is False: return
-
         if open:
             kp = '<'
             vp = '>'

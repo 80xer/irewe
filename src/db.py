@@ -328,7 +328,7 @@ class OutputToDB:
 
                 cur.execute(self.CONST.QR_INSERT_IND_VAR_INFO, file)
                 # todo change to file
-                if len(w) > 0: self.logger.warning(w[-1].message)
+                # if len(w) > 0: self.logger.warning(w[-1].message)
                 conn.commit()
                 io.remove_file(file)
         except Exception as e:
