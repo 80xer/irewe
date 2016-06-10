@@ -14,14 +14,16 @@ sys.setdefaultencoding('utf-8')
 
 
 class Engine:
-    def __init__(self, qr, params, options):
+    def __init__(self, qr, params, options, logger):
         self.qr = qr
         self.params = params
         self.options = options
+        self.logger = logger
         return
 
     def start(self):
         util = Utility(self.options.debug)
+        util.setLogger(self.logger)
         iv_total = []
 
         # 디비에서 독립변수 받기

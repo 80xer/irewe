@@ -3,6 +3,7 @@ import sys
 import os
 import MySQLdb
 import datetime
+import warnings
 from src.utility import DateUtility
 from src.utility import Utility
 from src.read import Series
@@ -219,42 +220,40 @@ class queries():
 
 
 class OutputToDB:
-    def __init__(self, params, const, dbs):
+    def __init__(self, params, const, dbs, logger):
         self.params = params
         self.CONST = const
         self.db = dbs
+        self.logger = logger
 
     def insert_report(self, data):
         util = Utility()
-        try:
-            util.printKeyValue('in output', '', open=True)
-            atime = datetime.datetime.now()
-            self.insert_iv(data)
-            util.printKeyValue('    iv Time diff',
-                               datetime.datetime.now() - atime, ' ', True, True)
 
-            btime = datetime.datetime.now()
-            self.insert_factor(data)
-            util.printKeyValue('    factor Time diff',
-                               datetime.datetime.now() - btime)
+        util.printKeyValue('in output', '', open=True)
+        atime = datetime.datetime.now()
+        self.insert_iv(data)
+        util.printKeyValue('    iv Time diff',
+                           datetime.datetime.now() - atime, ' ', True, True)
 
-            ctime = datetime.datetime.now()
-            self.insert_factor_weight(data)
-            util.printKeyValue('    factor_weight Time diff',
-                               datetime.datetime.now() - ctime)
+        btime = datetime.datetime.now()
+        self.insert_factor(data)
+        util.printKeyValue('    factor Time diff',
+                           datetime.datetime.now() - btime)
 
-            dtime = datetime.datetime.now()
-            self.insert_factor_parent()
-            util.printKeyValue('    factor parent Time diff',
-                               datetime.datetime.now() - dtime)
+        ctime = datetime.datetime.now()
+        self.insert_factor_weight(data)
+        util.printKeyValue('    factor_weight Time diff',
+                           datetime.datetime.now() - ctime)
 
-            etime = datetime.datetime.now()
-            self.insert_warning_board_idx(data)
-            util.printKeyValue('    index Time diff',
-                               datetime.datetime.now() - etime)
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+        dtime = datetime.datetime.now()
+        self.insert_factor_parent()
+        util.printKeyValue('    factor parent Time diff',
+                           datetime.datetime.now() - dtime)
+
+        etime = datetime.datetime.now()
+        self.insert_warning_board_idx(data)
+        util.printKeyValue('    index Time diff',
+                           datetime.datetime.now() - etime)
 
     def insert_iv(self, data):
         iv_sh = data['df_iv']
@@ -321,20 +320,22 @@ class OutputToDB:
             insertData
         )
         try:
-            cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
-                        (self.params['id_nm'], self.params['seq'],
-                         self.params['dv']))
+            warnings.filterwarnings('always', category=MySQLdb.Warning)
+            with warnings.catch_warnings(record=True) as w:
+                cur.execute(self.CONST.QR_DELETE_IND_VAR_INFO,
+                            (self.params['id_nm'], self.params['seq'],
+                             self.params['dv']))
 
-            cur.execute(self.CONST.QR_INSERT_IND_VAR_INFO, file)
-            conn.commit()
-            io.remove_file(file)
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+                cur.execute(self.CONST.QR_INSERT_IND_VAR_INFO, file)
+                # todo change to file
+                if len(w) > 0: self.logger.warning(w[-1].message)
+                conn.commit()
+                io.remove_file(file)
+        except Exception as e:
             conn.rollback()
             conn.close()
             io.remove_file(file)
-            raise 'error insert ind_var'
+            raise Exception(e)
 
         conn.close()
 
@@ -409,12 +410,10 @@ class OutputToDB:
                 (self.params['id_nm'], self.params['seq'], self.params['dv']))
             cur.executemany(self.CONST.QR_INSERT_FACT_INFO, insertData)
             conn.commit()
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+        except Exception:
             conn.rollback()
             conn.close()
-            raise 'error insert fact'
+            raise Exception('error insert fact')
 
         conn.close()
 
@@ -451,12 +450,10 @@ class OutputToDB:
 
             cur.executemany(self.CONST.QR_INSERT_FACT_WT, insertData)
             conn.commit()
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+        except Exception:
             conn.rollback()
             conn.close()
-            raise 'error insert fact weight'
+            raise Exception('error insert fact weight')
 
         conn.close()
 
@@ -502,13 +499,10 @@ class OutputToDB:
                 cur.execute(
                     self.CONST.QR_INSERT_FACT_FORM % elem)
                 conn.commit()
-
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+        except Exception:
             conn.rollback()
             conn.close()
-            raise 'error insert fact parent'
+            raise Exception('error insert fact parent')
 
         conn.close()
 
@@ -540,11 +534,9 @@ class OutputToDB:
 
             cur.executemany(self.CONST.QR_INSERT_IDX, insertData)
             conn.commit()
-        except Exception as inst:
-            print type(inst)
-            print inst.args
+        except Exception:
             conn.rollback()
             conn.close()
-            raise 'error insert idx'
+            raise Exception('error insert idx')
 
         conn.close()

@@ -67,6 +67,9 @@ class Utility:
         self.debug = debug
         return
 
+    def setLogger(self, logger):
+        self.logger = logger
+
     def convert_code(self, code):
         try:
             str_code = "{0:d}".format(int(code))
@@ -82,6 +85,38 @@ class Utility:
         self.printKeyValue(key, value, '.')
 
     def printKeyValue(self, key, value, dot=' ', open=True, use=False):
+        if self.debug is False: return
+        if hasattr(self, 'logger'):
+            self.printKeyValueWithLogger(key, value, dot, open, use)
+            return
+
+        if open:
+            kp = '<'
+            vp = '>'
+
+        else:
+            kp = '>'
+            vp = '<'
+
+        keyFormat = '{:' + dot + kp + '30}'
+        valueFormat = '{:' + dot + vp + '29}'
+
+        # print '%s %s' %(keyFormat.format(key),valueFormat.format(str(value)))
+
+        if type(value) is datetime.timedelta:
+            secs = value.seconds
+            mics = int(str(value.microseconds)[:2])
+            mins = secs / 60
+            secs = secs % 60
+            value = '0:' + \
+                    ('%02d' % (mins,)) + ':' + \
+                    ('%02d' % (secs,)) + '.' + \
+                    ('%02d' % (mics,))
+        print '%s %s' %(keyFormat.format(key),valueFormat.format(
+            str(value)))
+
+    def printKeyValueWithLogger(self, key, value, dot=' ', open=True,
+                               use=False):
         if self.debug is False: return
 
         if open:
@@ -106,9 +141,12 @@ class Utility:
                     ('%02d' % (mins,)) + ':' + \
                     ('%02d' % (secs,)) + '.' + \
                     ('%02d' % (mics,))
-        print '%s %s' %(keyFormat.format(key),valueFormat.format(str(value)))
+        self.logger.info('%s %s' %(keyFormat.format(key),valueFormat.format(
+            str(value))))
 
 
     def printLine(self):
-        return
-        print '{:*^60}'.format('')
+        if hasattr(self, 'logger'):
+            self.logger.info('{:*^60}'.format(''))
+        else:
+            print '{:*^60}'.format('')

@@ -169,3 +169,5 @@ ENV/
 # Rope project settings
 .ropeproject
 config
+.log
+logs/
