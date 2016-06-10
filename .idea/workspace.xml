@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="080d57d4-695f-4f74-98f9-a6b2b4f89fa8" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/db.py" afterPath="$PROJECT_DIR$/src/db.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utility.py" afterPath="$PROJECT_DIR$/src/utility.py" />
     </list>
     <ignored path="WarningBoardEngine.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -69,8 +68,8 @@
           <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/.gitignore">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.37964776">
-                  <caret line="82" column="5" selection-start-line="82" selection-start-column="2" selection-end-line="82" selection-end-column="5" />
+                <state vertical-scroll-proportion="0.77690804">
+                  <caret line="171" column="10" selection-start-line="171" selection-start-column="10" selection-end-line="171" selection-end-column="10" />
                   <folding />
                 </state>
               </provider>
@@ -243,11 +242,11 @@
         <option value="$PROJECT_DIR$/src/io.py" />
         <option value="$PROJECT_DIR$/src/engine.py" />
         <option value="$PROJECT_DIR$/logfile.log" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/logging.conf" />
         <option value="$PROJECT_DIR$/run.py" />
         <option value="$PROJECT_DIR$/src/db.py" />
         <option value="$PROJECT_DIR$/src/utility.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -1039,8 +1038,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.37964776">
-          <caret line="82" column="5" selection-start-line="82" selection-start-column="2" selection-end-line="82" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.77690804">
+          <caret line="171" column="10" selection-start-line="171" selection-start-column="10" selection-end-line="171" selection-end-column="10" />
           <folding />
         </state>
       </provider>
